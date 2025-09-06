@@ -32,10 +32,9 @@ Quantify how performance depends on the subspace dimension k, identify which dig
 
 ## Files & Structure
 - `TrainDigits.npy`, `TrainLabels.npy`: Training data and labels (10 classes).  
-- `TestDigits.npy`, `TestLabels.npy`: Test data and ground truth.  
-- `svd_classifier.py`: Main Python script implementing the classification algorithm.  
-- `plots/`: Figures of singular values and singular images for digits.  
-- `report.pdf`: Project report with discussion, code snippets, and results.  
+- `TestDigits.npy`, `TestLabels.npy`: Test data and ground truth.
+- Both of the above files are > 25MB and cannot be uploaded. 
+- `svd_classifier.py`: Main Python script implementing the classification algorithm.    
 - `README.md`: This file.  
 
 ## Some Comments
