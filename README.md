@@ -1,21 +1,17 @@
 # SVD-Based Handwritten Digit Classification
 
-This project explores the classification of handwritten digits using Singular Value Decomposition (SVD). A labeled training set of digits is used to develop the classification algorithm, while a separate test set evaluates its accuracy. The work serves as a hands-on exercise in pattern recognition, similar to real-world applications like automatic zip code recognition.
+This project explores the classification of handwritten digits using Singular Value Decomposition (SVD). A labeled training set builds the classifier, and a separate test set evaluates its accuracy—mirroring applications like automatic zip code recognition.
 
 ## Background
-Handwritten digit images are represented as grayscale matrices, where each entry corresponds to a pixel’s brightness. In this project, each digit is stored as a 28×28 matrix (flattened into a 784-dimensional vector). For each digit d=0,1,…,9 the training data is organized into a matrix where each column represents one training image of that digit. This structure allows for efficient use of linear algebra methods, such as SVD, in classification.
+Handwritten digit images are grayscale matrices where each entry is a pixel’s brightness. Here, each image is a 28×28 matrix (flattened into a 784-dimensional vector). For each digit d = 0, …, 9, training images are stacked as columns of a matrix—enabling efficient linear-algebra operations like SVD.
 
-here is a sample of numbers form 0-9, 
 ![Sample of handwritten digits](assets/img/numbers.png)
 
-An image in grayscale can be represented by a p × q matrix M whose (i, j)-th entry
-corresponds to the brightness of the pixel (i, j). The storage of this matrix requires pq
-locations. See Figure 2 for an example.
+A grayscale image can be represented by a $p \times q$ matrix $M$ whose $(i,j)$ entry is the brightness at pixel $(i,j)$.
 
-In your data sets, each image is a flattened vector of size 282 = 784 which corresponds to
-a 28 × 28 (p = 28 and q = 28) matrix. For example, for a matrix C ∈ R
-3×3 we would have
+![Greyscale-classification](assets/img/Greyscale.png)
 
+Each image is a flattened vector of size $28^2 = 784$, i.e., a $28 \times 28$ matrix. For example, for a matrix $C \in \mathbb{R}^{3\times 3}$:
 
 $$
 C=
@@ -24,7 +20,7 @@ c_{11} & c_{12} & c_{13} \\
 c_{21} & c_{22} & c_{23} \\
 c_{31} & c_{32} & c_{33}
 \end{bmatrix}
-\;\xrightarrow{\text{stack columns}\qquad\qquad}\qquad\qquad
+\xrightarrow{\text{stack columns}\qquad\qquad}\qquad\qquad
 \begin{bmatrix}
 c_{11}\\
 c_{21}\\
@@ -38,10 +34,7 @@ c_{33}
 \end{bmatrix}
 $$
 
-For each kind of digit d, where d = 0, 1, . . . , 9, the training set consists of n handwritten
-digits. We refer to them as training images for digit d. We now define the matrix Ad, where
-the columns of Ad are the training images of type d. Thus Ad is a m × n matrix, with
-m = 784:
+For each digit $d$, the training set consists of $n$ handwritten digits. Define the matrix $A_d$ whose columns are the training images of type $d$; $A_d \in \mathbb{R}^{784 \times n}$:
 
 $$
 A_d =
@@ -52,62 +45,87 @@ A_d =
 \end{bmatrix}.
 $$
 
-Usually, n ⩾ m although the case n < m is also possible. We refer to the matrix Ad
-as the training matrix for digit d. So, we have a total of 10 training matrices Ad, each
-corresponding to one of the digits d = 0, 1, . . . , 9.
+## SVD-based classification
 
+Training columns for one digit lie in a low-dimensional subspace.
 
+$$
+A \in \mathbb{R}^{784 \times n}, \qquad A = U\Sigma V^{\mathsf T}.
+$$
 
+The columns of $U$ form an orthonormal basis for the column space of $A$, so any image of that digit is well approximated by a linear combination of a few leading columns of $U$.
 
+We have
 
+$$
+A = U\Sigma V^{\mathsf T} = \sum_{j=1}^{m} \sigma_j\,u_j v_j^{\mathsf T},
+$$
 
+thus the $\ell$-th column of $A$ (the $\ell$-th training digit) can be represented as
+
+$$
+a_\ell = \sum_{j=1}^{m} (\sigma_j v_{j\ell})\, u_j
+$$
+
+which means that the coordinates of image $a_\ell$ in terms of the orthonormal basis are
+
+$$
+a_\ell = \sum_{j=1}^{m} x_j u_j = Ux.
+$$
+
+Solving the least-squares problem
+
+$$
+\min_{x} \lVert Ux - a_\ell \rVert_2
+$$
+
+yields the optimal vector with entries
+
+$$
+x_j = \sigma_j v_{j\ell} \quad (j=1,\ldots,m),
+$$
+
+and zero residual.
+
+Columns of $A$ are variations of the same digit, so they’re nearly linearly dependent → a low-dimensional subspace. The leading columns of $U$ (“singular images” $u_1,u_2,\ldots$) capture this subspace.
+
+Use a rank $k$ ($k \ll m$) model: each $a_\ell$ is well-approximated in the subspace spanned by $\{u_1,\ldots,u_k\}$ with a small least-squares residual.
+
+For a test digit $\delta \in \mathbb{R}^{784}$, compare its fit to each digit’s $k$-dimensional subspace $U_k^{(d)}$ (equivalently, solve)
+
+$$
+\min_{x} \lVert U_k^{(d)} x - \delta \rVert_2
+$$
+
+and predict the label with the smallest residual.
+
+### SVD classifier — steps
+1. For each digit $d\in\{0,\dots,9\}$, stack its training images as columns of $A^{(d)}$.
+2. Compute the SVD of $A^{(d)}$ and keep the first $k$ left singular vectors $U_k^{(d)}$.
+3. For a test image $\delta$, compute the residual to each class subspace and predict the digit with the smallest residual.
 
 ## Task 2
-For the digits 3 and 8, each represented by a training matrix of size 784×400, the task was to compute the singular value decomposition and analyze the results.
+Compute the SVD for digits 3 and 8 (each $784\times 400$) and analyze results.
 
 ### Method
-The matrices were formed by stacking 400 training images of each digit. The SVD was then applied to both matrices, and the singular values were plotted on linear scales to study their decay. In addition, the first three singular images (u1, u2, u3) were visualized for each digit to illustrate the most significant patterns captured by the decomposition.
+Stack 400 training images per digit to form each matrix. Apply SVD, plot singular values (linear scales), and visualize the first three singular images $(u_1,u_2,u_3)$ for each digit.
 
 ### Goal
-The purpose of this task was to investigate how well the digits can be represented in a low-dimensional subspace, to compare differences in singular value decay between the two digits, and to interpret the singular images as prototypes and systematic variations within each class.
+Assess how well each digit fits a low-dimensional subspace, compare singular value decay, and interpret singular images as prototypes/variations within each class.
 
 ## Task 3
-Implement an SVD-based digit classifier using 400 training images per digit (ten matrices of shape 784×400) and evaluate it on the full test set of 40,000 images with known labels.
+Implement an SVD-based digit classifier using 400 training images per digit (ten $784\times 400$ matrices) and evaluate on 40,000 labeled test images.
 
 ### Method
-1. Construct one training matrix A_d for each digit d ∈ {0,…,9} by stacking 400 flattened 28×28 images as columns (shape 784×400).  
-2. For each A_d, compute its SVD and form a rank-k basis U_k from the first k left singular vectors (k ∈ {5,6,…,15}).  
-3. For every test image δ, compute the residual against each digit’s subspace:  
-   \[
-   r_d(δ, k) = \| (I − U_k U_k^T) δ \|_2
-   \]  
-   Classify δ as the digit with the smallest residual.  
-4. Compare predictions with `TestLabels.npy` and report accuracy (%) per digit for each k ∈ {5,…,15}.  
+1. **Train bases:** For each digit $d$, build $A_d$ and keep the top-$k$ left singular vectors $U_k$ for $k=5,\ldots,15$.
+2. **Classify:** For each test image, project onto each $U_k$ and choose the digit with the smallest projection residual (Euclidean norm).
+3. **Evaluate:** Test all 40,000 images against `TestLabels.npy` and report per-digit accuracy for each $k$.
 
-### Goal
-Quantify how performance depends on the subspace dimension k, identify which digits benefit from smaller vs. larger k, and validate the implementation by matching (within reasonable variance) the reference results from the notes.
+Quantify how performance depends on $k$, note which digits benefit from smaller vs. larger $k$, and verify against reference results.
 
 ## Files & Structure
-- `TrainDigits.npy`, `TrainLabels.npy`: Training data and labels (10 classes).  
-- `TestDigits.npy`, `TestLabels.npy`: Test data and ground truth.
-- Both of the above files are > 25MB and cannot be uploaded. 
-- `svd_classifier.py`: Main Python script implementing the classification algorithm.    
-- `README.md`: This file.  
+- `TrainDigits.npy`, `TrainLabels.npy`: Training data and labels (10 classes)  
+- `TestDigits.npy`, `TestLabels.npy`: Test data and ground truth (note: large files)  
+- `svd_classifier.py`: Main Python script implementing the classifier  
+- `README.md`: This file
 
-## Some Comments
-- **Data layout**  
-  Training: build A_d ∈ R^{784×400} per digit d by stacking 400 column vectors.  
-  Test: keep X_test ∈ R^{784×M} (M = 40,000) for vectorized evaluation.  
-
-- **Precompute once**  
-  For each d, compute economy SVD: A_d = U_d Σ_d V_d^T.  
-  Cache U_d[:, :k_max] with k_max = 15. Slice for k ∈ {5,…,15}.  
-
-- **Residual-based classification**  
-  For given k and digit d: P_d = U_{d,k} (U_{d,k}^T X_test).  
-  Residuals: R_d = ||X_test − P_d||_2 (columnwise).  
-  Stack all R_d rows → R ∈ R^{10×M}, predict with argmin over rows.  
-
-- **Efficiency**  
-  Use matrix–matrix operations; avoid per-sample loops.  
-  Consider batching test columns if memory is tight.  
