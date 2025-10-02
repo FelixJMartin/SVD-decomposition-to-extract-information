@@ -5,6 +5,63 @@ This project explores the classification of handwritten digits using Singular Va
 ## Background
 Handwritten digit images are represented as grayscale matrices, where each entry corresponds to a pixel’s brightness. In this project, each digit is stored as a 28×28 matrix (flattened into a 784-dimensional vector). For each digit d=0,1,…,9 the training data is organized into a matrix where each column represents one training image of that digit. This structure allows for efficient use of linear algebra methods, such as SVD, in classification.
 
+here is a sample of numbers form 0-9, 
+![Sample of handwritten digits](assets/img/numbers.png)
+
+An image in grayscale can be represented by a p × q matrix M whose (i, j)-th entry
+corresponds to the brightness of the pixel (i, j). The storage of this matrix requires pq
+locations. See Figure 2 for an example.
+
+In your data sets, each image is a flattened vector of size 282 = 784 which corresponds to
+a 28 × 28 (p = 28 and q = 28) matrix. For example, for a matrix C ∈ R
+3×3 we would have
+
+
+$$
+C=
+\begin{bmatrix}
+c_{11} & c_{12} & c_{13} \\
+c_{21} & c_{22} & c_{23} \\
+c_{31} & c_{32} & c_{33}
+\end{bmatrix}
+\;\xrightarrow{\text{stack columns}\qquad\qquad}\qquad\qquad
+\begin{bmatrix}
+c_{11}\\
+c_{21}\\
+c_{31}\\
+c_{12}\\
+c_{22}\\
+c_{32}\\
+c_{13}\\
+c_{23}\\
+c_{33}
+\end{bmatrix}
+$$
+
+For each kind of digit d, where d = 0, 1, . . . , 9, the training set consists of n handwritten
+digits. We refer to them as training images for digit d. We now define the matrix Ad, where
+the columns of Ad are the training images of type d. Thus Ad is a m × n matrix, with
+m = 784:
+
+$$
+A_d =
+\begin{bmatrix}
+\vdots & \vdots & \cdots & \vdots \\
+\text{Image }1 & \text{Image }2 & \cdots & \text{Image }n \\
+\vdots & \vdots & \cdots & \vdots
+\end{bmatrix}.
+$$
+
+Usually, n ⩾ m although the case n < m is also possible. We refer to the matrix Ad
+as the training matrix for digit d. So, we have a total of 10 training matrices Ad, each
+corresponding to one of the digits d = 0, 1, . . . , 9.
+
+
+
+
+
+
+
 ## Task 2
 For the digits 3 and 8, each represented by a training matrix of size 784×400, the task was to compute the singular value decomposition and analyze the results.
 
